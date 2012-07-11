@@ -2,21 +2,21 @@
 class haproxy::firewall (
 
   $proxies = $haproxy::params::proxies,
-)
-inherits haproxy::params {
+
+) inherits haproxy::params {
 
   #-----------------------------------------------------------------------------
 
   $proxy_ports = proxy_ports($proxies)
 
   if $proxy_ports {
-    haproxy::add_rule { $proxy_ports: }
+    haproxy::rule { $proxy_ports: }
   }
 }
 
 #-------------------------------------------------------------------------------
 
-define haproxy::add_rule($port) {
+define haproxy::rule($port) {
 
   if $port {
     firewall { "200 INPUT Allow HAProxy connections: $port":
