@@ -1,10 +1,11 @@
 
 class haproxy::install (
 
-  $haproxy_package = $haproxy::params::haproxy_package,
   $haproxy_version = $haproxy::params::haproxy_version,
 )
 inherits haproxy::params {
+
+  $haproxy_package = $haproxy::params::haproxy_package
 
   #-----------------------------------------------------------------------------
 

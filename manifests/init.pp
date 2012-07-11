@@ -10,7 +10,6 @@
 #
 # Parameters:
 #
-#  $haproxy_package         = $haproxy::params::haproxy_package,
 #  $haproxy_version         = $haproxy::params::haproxy_version,
 #  $user                    = $haproxy::params::user,
 #  $group                   = $haproxy::params::group,
@@ -22,7 +21,6 @@
 #  $default_max_connections = $haproxy::params::default_max_connections,
 #  $default_options         = $haproxy::params::default_options,
 #  $proxies                 = $haproxy::params::proxies,
-#  $proxy_config            = $haproxy::params::proxy_config,
 #
 # Actions:
 #
@@ -87,7 +85,6 @@
 # [Remember: No empty lines between comments and class definition]
 class haproxy (
 
-  $haproxy_package         = $haproxy::params::haproxy_package,
   $haproxy_version         = $haproxy::params::haproxy_version,
   $user                    = $haproxy::params::user,
   $group                   = $haproxy::params::group,
@@ -99,9 +96,8 @@ class haproxy (
   $default_max_connections = $haproxy::params::default_max_connections,
   $default_options         = $haproxy::params::default_options,
   $proxies                 = $haproxy::params::proxies,
-  $proxy_config            = $haproxy::params::proxy_config,
-)
-inherits haproxy::params {
+
+) inherits haproxy::params {
 
   #-----------------------------------------------------------------------------
 
@@ -110,7 +106,6 @@ inherits haproxy::params {
   }
 
   class { 'haproxy::install':
-    haproxy_package => $haproxy_package,
     haproxy_version => $haproxy_version,
   }
 
@@ -125,12 +120,9 @@ inherits haproxy::params {
     default_max_connections => $default_max_connections,
     default_options         => $default_options,
     proxies                 => $proxies,
-    proxy_config            => $proxy_config,
   }
 
-  class { 'haproxy::service':
-    proxy_config => $proxy_config,
-  }
+  include haproxy::service
 
   #-----------------------------------------------------------------------------
 

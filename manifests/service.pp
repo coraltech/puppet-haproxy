@@ -1,9 +1,7 @@
 
-class haproxy::service (
+class haproxy::service inherits haproxy::params {
 
-  $proxy_config = $haproxy::params::proxy_config,
-)
-inherits haproxy::params {
+  $proxy_config = $haproxy::params::proxy_config
 
   #-----------------------------------------------------------------------------
 
