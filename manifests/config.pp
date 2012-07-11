@@ -11,15 +11,16 @@ class haproxy::config (
   $default_max_connections = $haproxy::params::default_max_connections,
   $default_options         = $haproxy::params::default_options,
   $proxies                 = $haproxy::params::proxies,
-  $proxy_config            = $haproxy::params::proxy_config,
-)
-inherits haproxy::params {
+
+) inherits haproxy::params {
+
+  $proxy_config            = $haproxy::params::proxy_config
 
   #-----------------------------------------------------------------------------
 
   file { $proxy_config:
     ensure  => 'present',
     require => Class['haproxy::install'],
-    content => template('haproxy/haproxy.cfg'),
+    content => template('haproxy/haproxy.cfg.erb'),
   }
 }
