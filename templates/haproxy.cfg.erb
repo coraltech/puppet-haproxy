@@ -9,27 +9,27 @@ global
         log 127.0.0.1  local0
         log 127.0.0.1  local1 notice
         maxconn <%= max_connections %>
-        <%= debug ? 'debug' : '' %>
-        <%= quiet ? 'quiet' : '' %>
+        <%= debug == 'true' ? 'debug' : '' %>
+        <%= quiet == 'true' ? 'quiet' : '' %>
 
 defaults
         log     global
         mode    <%= default_mode %>
         retries <%= default_retries %>        
         maxconn <%= default_max_connections %>
-<% default_options.each_pair do |option_name, arguments| -%>
+<% default_options.each do |option_name, arguments| -%>
         option  <%= option_name -%> <%= arguments.flatten.join(' ') %>
 <% end -%>
 
-<% proxies.each_pair do |proxy_name, proxy| -%>
+<% proxies.each do |proxy_name, proxy| -%>
 listen <%= proxy_name -%> <%= proxy['ip'] ? proxy['ip'] : '0.0.0.0' -%>:<%= proxy['port'] %>
     mode <%= proxy['mode'] %>
     balance <%= proxy['balance'] %>    
-<% proxy['options'].each_pair do |option_name, arguments| -%>
+<% proxy['options'].each do |option_name, arguments| -%>
     option  <%= option_name -%> <%= arguments.flatten.join(' ') %>
 <% end -%>
 
-<% proxy['servers'].each_pair do |server_name, server| -%>
+<% proxy['servers'].each do |server_name, server| -%>
     server <%= server_name -%> <%= server['ip'] -%>:<%= server['port'] -%> <%= server['settings'].flatten.join(' ') %>
 <% end -%>
 <% end %>

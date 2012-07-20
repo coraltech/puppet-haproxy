@@ -1,0 +1,20 @@
+{
+  "haproxy_package_ensure" : "present",
+  "haproxy_service_ensure" : "running",
+  "haproxy_configure_firewall" : "true",
+  "haproxy_user" : "haproxy",
+  "haproxy_group" : "haproxy",
+  "haproxy_node" : "localhost",
+  "haproxy_debug" : "false",
+  "haproxy_quiet" : "false",
+  "haproxy_max_connections" : "5000",
+  "haproxy_default_mode" : "http",
+  "haproxy_default_retries" : "3",
+  "haproxy_default_max_connections" : "1000",
+  "haproxy_default_options" : {
+    "tcplog" : [],
+    "dontlognull" : [],
+    "redispatch" : []
+  }
+  "haproxy_proxies" : {}
+}

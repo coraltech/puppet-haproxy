@@ -2,25 +2,13 @@
 #
 #   This module manages the HAProxy service.
 #
-#   Adrian Webb <adrian.webb@coraltg.com>
+#   Adrian Webb <adrian.webb@coraltech.net>
 #   2012-05-22
 #
 #   Tested platforms:
 #    - Ubuntu 12.04
 #
-# Parameters:
-#
-#  $haproxy_version         = $haproxy::params::haproxy_version,
-#  $user                    = $haproxy::params::user,
-#  $group                   = $haproxy::params::group,
-#  $debug                   = $haproxy::params::debug,
-#  $quiet                   = $haproxy::params::quiet,
-#  $max_connections         = $haproxy::params::max_connections,
-#  $default_mode            = $haproxy::params::default_mode,
-#  $default_retries         = $haproxy::params::default_retries,
-#  $default_max_connections = $haproxy::params::default_max_connections,
-#  $default_options         = $haproxy::params::default_options,
-#  $proxies                 = $haproxy::params::proxies,
+# Parameters: (see <example/params.json> for Hiera configurations)
 #
 # Actions:
 #
@@ -85,9 +73,15 @@
 # [Remember: No empty lines between comments and class definition]
 class haproxy (
 
-  $haproxy_version         = $haproxy::params::haproxy_version,
+  $package                 = $haproxy::params::os_haproxy_package,
+  $package_ensure          = $haproxy::params::haproxy_package_ensure,
+  $service                 = $haproxy::params::os_haproxy_service,
+  $service_ensure          = $haproxy::params::haproxy_service_ensure,
+  $config                  = $haproxy::params::os_config,
+  $configure_firewall      = $haproxy::params::configure_firewall,
   $user                    = $haproxy::params::user,
   $group                   = $haproxy::params::group,
+  $node                    = $haproxy::params::node,
   $debug                   = $haproxy::params::debug,
   $quiet                   = $haproxy::params::quiet,
   $max_connections         = $haproxy::params::max_connections,
@@ -96,38 +90,63 @@ class haproxy (
   $default_max_connections = $haproxy::params::default_max_connections,
   $default_options         = $haproxy::params::default_options,
   $proxies                 = $haproxy::params::proxies,
+  $config_template         = $haproxy::params::os_config_template,
 
 ) inherits haproxy::params {
 
-  #-----------------------------------------------------------------------------
-
-  class { 'haproxy::firewall':
-    proxies => $proxies,
-  }
-
-  class { 'haproxy::install':
-    haproxy_version => $haproxy_version,
-  }
-
-  class { 'haproxy::config':
-    user                    => $user,
-    group                   => $group,
-    debug                   => $debug,
-    quiet                   => $quiet,
-    max_connections         => $max_connections,
-    default_mode            => $default_mode,
-    default_retries         => $default_retries,
-    default_max_connections => $default_max_connections,
-    default_options         => $default_options,
-    proxies                 => $proxies,
-  }
-
-  include haproxy::service
+  $proxy_ports             = proxy_ports($proxies)
 
   #-----------------------------------------------------------------------------
+  # Installation
 
-  Class['haproxy::firewall'] ->
-  Class['haproxy::install'] ->
-  Class['haproxy::config'] ->
-  Class['haproxy::service']
+  if ! ( $package and $package_ensure ) {
+    fail('HAProxy package name and ensure value must be defined')
+  }
+  package { 'haproxy':
+    name   => $package,
+    ensure => $package_ensure,
+  }
+
+  #-----------------------------------------------------------------------------
+  # Configuration
+
+  if $configure_firewall == 'true' and $proxy_ports {
+    haproxy::rule { $proxy_ports: }
+  }
+
+  file { 'haproxy-config':
+    path    => $config,
+    content => template($config_template),
+    require => Package['haproxy'],
+    notify  => Service['haproxy'],
+  }
+
+  #-----------------------------------------------------------------------------
+  # Services
+
+  service { 'haproxy':
+    name    => $service,
+    ensure  => $service_ensure,
+    require => Package['haproxy'],
+  }
 }
+
+#-------------------------------------------------------------------------------
+
+define haproxy::rule($port) {
+
+  $rule_description = "200 INPUT Allow HAProxy connections: $port"
+
+  #-----------------------------------------------------------------------------
+
+  if $port and ! defined(Firewall[$rule_description]) {
+    firewall { $rule_description:
+      action => accept,
+      chain  => 'INPUT',
+      state  => 'NEW',
+      proto  => 'tcp',
+      dport  => $port,
+    }
+  }
+}
+
