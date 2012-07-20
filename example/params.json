@@ -15,6 +15,6 @@
     "tcplog" : [],
     "dontlognull" : [],
     "redispatch" : []
-  }
+  },
   "haproxy_proxies" : {}
 }
