@@ -9,7 +9,7 @@ module Puppet::Parser::Functions
     else
       ports = Array.new
       
-      args[0].each_pair do |proxy_name, proxy|
+      args[0].each do |proxy_name, proxy|
         ports << proxy['port']
       end
       
