@@ -79,6 +79,7 @@ class haproxy (
   $service_ensure          = $haproxy::params::haproxy_service_ensure,
   $config                  = $haproxy::params::os_config,
   $configure_firewall      = $haproxy::params::configure_firewall,
+  $chroot_dir              = $haproxy::params::os_chroot_dir,
   $user                    = $haproxy::params::user,
   $group                   = $haproxy::params::group,
   $node                    = $haproxy::params::node,

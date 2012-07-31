@@ -19,8 +19,8 @@ class haproxy::params {
     $default_mode            = hiera('haproxy_default_mode', $haproxy::default::default_mode)
     $default_retries         = hiera('haproxy_default_retries', $haproxy::default::default_retries)
     $default_max_connections = hiera('haproxy_default_max_connections', $haproxy::default::default_max_connections)
-    $default_options         = hiera('haproxy_default_options', $haproxy::default::default_options)
-    $proxies                 = hiera('haproxy_proxies', $haproxy::default::proxies)
+    $default_options         = hiera_hash('haproxy_default_options', $haproxy::default::default_options)
+    $proxies                 = hiera_hash('haproxy_proxies', $haproxy::default::proxies)
   }
   else {
     $haproxy_package_ensure  = $haproxy::default::haproxy_package_ensure
@@ -49,6 +49,8 @@ class haproxy::params {
 
       $os_config          = '/etc/haproxy/haproxy.cfg'
       $os_config_template = 'haproxy/haproxy.cfg.erb'
+
+      $os_chroot_dir      = '/usr/share/haproxy'
     }
     default: {
       fail("The haproxy module is not currently supported on ${::operatingsystem}")

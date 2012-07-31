@@ -1,8 +1,6 @@
-# this config needs haproxy-1.4.19
-
 global
         daemon
-        chroot /usr/share/haproxy
+        chroot <%= chroot_dir %>
         user   <%= user %>
         group  <%= group %>
         node   <%= node %>
@@ -17,19 +15,72 @@ defaults
         mode    <%= default_mode %>
         retries <%= default_retries %>        
         maxconn <%= default_max_connections %>
+<% if default_options.is_a? Hash -%>
 <% default_options.each do |option_name, arguments| -%>
-        option  <%= option_name -%> <%= arguments.flatten.join(' ') %>
+        option <%= option_name -%>
+<% if arguments.is_a? Array -%>
+  <%= arguments.flatten.join(' ') -%>
+<% elsif arguments.is_a? String -%>
+  <%= arguments -%>
+<% end %>
+<% end /* each */ -%>
+<% elsif default_options.is_a? Array %>
+<% default_options.each do |option| -%>
+        option 
+<% if option.is_a? Array -%>
+  <%= option.flatten.join(' ') -%>
+<% elsif option.is_a? String -%>
+  <%= option -%>
+<% end %>
+<% end /* each */ -%>
 <% end -%>
 
 <% proxies.each do |proxy_name, proxy| -%>
+<% if proxy.is_a? Hash -%>
 listen <%= proxy_name -%> <%= proxy['ip'] ? proxy['ip'] : '0.0.0.0' -%>:<%= proxy['port'] %>
-    mode <%= proxy['mode'] %>
-    balance <%= proxy['balance'] %>    
+<% if proxy.has_key?('directive') and proxy['directive'].is_a? Hash -%>
+<% proxy['directive'].each do |directive_name, directive_options| -%>
+        <%= directive_name -%>
+<% if directive_options.is_a? Array -%>
+  <%= directive_options.flatten.join(' ') -%>
+<% elsif directive_options.is_a? String -%>
+  <%= directive_options -%>
+<% end %>
+<% end /* each */ -%>
+<% end -%>
+<% if proxy.has_key?('options') -%>
+<% if proxy['options'].is_a? Hash -%>   
 <% proxy['options'].each do |option_name, arguments| -%>
-    option  <%= option_name -%> <%= arguments.flatten.join(' ') %>
+        option  <%= option_name -%>
+<% if arguments.is_a? Array -%>
+  <%= arguments.flatten.join(' ') -%>
+<% elsif arguments.is_a? String -%>
+  <%= arguments -%>
+<% end %>
+<% end /* each */ -%>
+<% elsif proxy['options'].is_a? Array -%>
+<% proxy['options'].each do |option| -%>
+        option
+<% if option.is_a? Array -%>
+  <%= option.flatten.join(' ') -%>
+<% elsif option.is_a? String -%>
+  <%= option -%>
+<% end %>
+<% end /* each */ -%>
+<% end -%>
 <% end -%>
 
 <% proxy['servers'].each do |server_name, server| -%>
-    server <%= server_name -%> <%= server['ip'] -%>:<%= server['port'] -%> <%= server['settings'].flatten.join(' ') %>
+<% if server.has_key?('ip') and server['ip'] and server.has_key?('port') and server['port'] -%>
+    server <%= server_name -%> <%= server['ip'] -%>:<%= server['port'] -%>
+<% if server.has_key?('settings') -%> 
+<% if server['settings'].is_a? Array -%>    
+  <%= server['settings'].flatten.join(' ') -%>
+<% elsif server['settings'].is_a? String -%>
+  <%= server['settings'] -%>
 <% end -%>
 <% end %>
+<% end -%>
+<% end /* each */ -%>
+<% end -%>
+<% end /* each */ %>
