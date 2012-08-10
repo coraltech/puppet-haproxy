@@ -83,8 +83,8 @@ class haproxy (
   $user                    = $haproxy::params::user,
   $group                   = $haproxy::params::group,
   $node                    = $haproxy::params::node,
-  $debug                   = $haproxy::params::debug,
-  $quiet                   = $haproxy::params::quiet,
+  $haproxy_debug           = $haproxy::params::debug,
+  $haproxy_quiet           = $haproxy::params::quiet,
   $max_connections         = $haproxy::params::max_connections,
   $default_mode            = $haproxy::params::default_mode,
   $default_retries         = $haproxy::params::default_retries,
@@ -134,7 +134,7 @@ class haproxy (
 
 #-------------------------------------------------------------------------------
 
-define haproxy::rule($port) {
+define haproxy::rule( $port = $name ) {
 
   $rule_description = "200 INPUT Allow HAProxy connections: $port"
 

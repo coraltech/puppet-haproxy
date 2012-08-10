@@ -7,8 +7,8 @@ global
         log 127.0.0.1  local0
         log 127.0.0.1  local1 notice
         maxconn <%= max_connections %>
-        <%= debug == 'true' ? 'debug' : '' %>
-        <%= quiet == 'true' ? 'quiet' : '' %>
+        <%= haproxy_debug == 'true' ? 'debug' : '' %>
+        <%= haproxy_quiet == 'true' ? 'quiet' : '' %>
 
 defaults
         log     global
@@ -16,71 +16,66 @@ defaults
         retries <%= default_retries %>        
         maxconn <%= default_max_connections %>
 <% if default_options.is_a? Hash -%>
-<% default_options.each do |option_name, arguments| -%>
-        option <%= option_name -%>
-<% if arguments.is_a? Array -%>
-  <%= arguments.flatten.join(' ') -%>
-<% elsif arguments.is_a? String -%>
-  <%= arguments -%>
-<% end %>
-<% end /* each */ -%>
+<%  default_options.each do |option_name, argument| -%>
+<%    if argument.is_a? Array -%>
+        option <%= option_name -%> <%= argument.flatten.join(' ') %>
+<%    elsif argument.is_a? String -%>
+        option <%= option_name -%> argument %>
+<%    end -%>
+<%  end -%>
 <% elsif default_options.is_a? Array %>
-<% default_options.each do |option| -%>
-        option 
-<% if option.is_a? Array -%>
-  <%= option.flatten.join(' ') -%>
-<% elsif option.is_a? String -%>
-  <%= option -%>
-<% end %>
-<% end /* each */ -%>
+<%  default_options.each do |option_name| -%>
+<%    if option_name.is_a? Array -%>
+        option <%= option_name.flatten.join(' ') %>
+<%    elsif option_name.is_a? String -%>
+        option <%= option_name %>
+<%    end -%>
+<%  end -%>
 <% end -%>
 
 <% proxies.each do |proxy_name, proxy| -%>
-<% if proxy.is_a? Hash -%>
+<%  if proxy.is_a? Hash -%>
 listen <%= proxy_name -%> <%= proxy['ip'] ? proxy['ip'] : '0.0.0.0' -%>:<%= proxy['port'] %>
-<% if proxy.has_key?('directive') and proxy['directive'].is_a? Hash -%>
-<% proxy['directive'].each do |directive_name, directive_options| -%>
-        <%= directive_name -%>
-<% if directive_options.is_a? Array -%>
-  <%= directive_options.flatten.join(' ') -%>
-<% elsif directive_options.is_a? String -%>
-  <%= directive_options -%>
-<% end %>
-<% end /* each */ -%>
-<% end -%>
-<% if proxy.has_key?('options') -%>
-<% if proxy['options'].is_a? Hash -%>   
-<% proxy['options'].each do |option_name, arguments| -%>
-        option  <%= option_name -%>
-<% if arguments.is_a? Array -%>
-  <%= arguments.flatten.join(' ') -%>
-<% elsif arguments.is_a? String -%>
-  <%= arguments -%>
-<% end %>
-<% end /* each */ -%>
-<% elsif proxy['options'].is_a? Array -%>
-<% proxy['options'].each do |option| -%>
-        option
-<% if option.is_a? Array -%>
-  <%= option.flatten.join(' ') -%>
-<% elsif option.is_a? String -%>
-  <%= option -%>
-<% end %>
-<% end /* each */ -%>
-<% end -%>
-<% end -%>
+<%    if proxy.has_key?('directive') and proxy['directive'].is_a? Hash -%>
+<%      proxy['directive'].each do |directive_name, directive_option| -%>
+<%        if directive_option.is_a? Array -%>
+        <%= directive_name -%> <%= directive_option.flatten.join(' ') %>
+<%        elsif directive_option.is_a? String -%>
+        <%= directive_name -%> <%= directive_option %>
+<%        end -%>
+<%      end -%>
+<%    end -%>
+<%    if proxy.has_key?('options') -%>
+<%      if proxy['options'].is_a? Hash -%>   
+<%        proxy['options'].each do |option_name, argument| -%>
+<%          if argument.is_a? Array -%>
+        option <%= option_name -%> <%= argument.flatten.join(' ') %>
+<%          elsif argument.is_a? String -%>
+        option <%= option_name -%> <%= argument %>
+<%          end -%>
+<%        end -%>
+<%      elsif proxy['options'].is_a? Array -%>
+<%        proxy['options'].each do |option_name| -%>
+<%          if option_name.is_a? Array -%>
+        option <%= option_name.flatten.join(' ') %>
+<%          elsif option_name.is_a? String -%>
+        option <%= option_name %>
+<%          end -%>
+<%        end -%>
+<%      end -%>
+<%    end -%>
 
-<% proxy['servers'].each do |server_name, server| -%>
-<% if server.has_key?('ip') and server['ip'] and server.has_key?('port') and server['port'] -%>
-    server <%= server_name -%> <%= server['ip'] -%>:<%= server['port'] -%>
-<% if server.has_key?('settings') -%> 
-<% if server['settings'].is_a? Array -%>    
+<%    proxy['servers'].each do |server_name, server| -%>
+<%      if server.has_key?('ip') and server['ip'] and server.has_key?('port') and server['port'] -%>
+        server <%= server_name -%> <%= server['ip'] -%>:<%= server['port'] -%>
+<%        if server.has_key?('settings') -%> 
+<%          if server['settings'].is_a? Array -%>    
   <%= server['settings'].flatten.join(' ') -%>
-<% elsif server['settings'].is_a? String -%>
+<%          elsif server['settings'].is_a? String -%>
   <%= server['settings'] -%>
+<%          end -%>
+<%        end -%>
+<%      end %>
+<%    end -%>
+<%  end -%>
 <% end -%>
-<% end %>
-<% end -%>
-<% end /* each */ -%>
-<% end -%>
-<% end /* each */ %>
