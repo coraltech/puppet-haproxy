@@ -1,59 +1,31 @@
 
-class haproxy::params {
+class haproxy::params inherits haproxy::default {
 
-  include haproxy::default
+  $package                 = module_param('package')
+  $package_ensure          = module_param('package_ensure')
+  $service                 = module_param('service')
+  $service_ensure          = module_param('service_ensure')
 
-  #-----------------------------------------------------------------------------
-  # General configurations
+  #---
 
-  if $::hiera_ready {
-    $haproxy_package_ensure  = hiera('haproxy_package_ensure', $haproxy::default::haproxy_package_ensure)
-    $haproxy_service_ensure  = hiera('haproxy_service_ensure', $haproxy::default::haproxy_service_ensure)
-    $configure_firewall      = hiera('haproxy_configure_firewall', $haproxy::default::configure_firewall)
-    $user                    = hiera('haproxy_user', $haproxy::default::user)
-    $group                   = hiera('haproxy_group', $haproxy::default::group)
-    $node                    = hiera('haproxy_node', $haproxy::default::node)
-    $debug                   = hiera('haproxy_debug', $haproxy::default::debug)
-    $quiet                   = hiera('haproxy_quiet', $haproxy::default::quiet)
-    $max_connections         = hiera('haproxy_max_connections', $haproxy::default::max_connections)
-    $default_mode            = hiera('haproxy_default_mode', $haproxy::default::default_mode)
-    $default_retries         = hiera('haproxy_default_retries', $haproxy::default::default_retries)
-    $default_max_connections = hiera('haproxy_default_max_connections', $haproxy::default::default_max_connections)
-    $default_options         = hiera_hash('haproxy_default_options', $haproxy::default::default_options)
-    $proxies                 = hiera_hash('haproxy_proxies', $haproxy::default::proxies)
-  }
-  else {
-    $haproxy_package_ensure  = $haproxy::default::haproxy_package_ensure
-    $haproxy_service_ensure  = $haproxy::default::haproxy_service_ensure
-    $configure_firewall      = $haproxy::default::configure_firewall
-    $user                    = $haproxy::default::user
-    $group                   = $haproxy::default::group
-    $node                    = $haproxy::default::node
-    $debug                   = $haproxy::default::debug
-    $quiet                   = $haproxy::default::quiet
-    $max_connections         = $haproxy::default::max_connections
-    $default_mode            = $haproxy::default::default_mode
-    $default_retries         = $haproxy::default::default_retries
-    $default_max_connections = $haproxy::default::default_max_connections
-    $default_options         = $haproxy::default::default_options
-    $proxies                 = $haproxy::default::proxies
-  }
+  $configure_firewall      = module_param('configure_firewall')
 
-  #-----------------------------------------------------------------------------
-  # Operating system specific configurations
+  $config                  = module_param('config')
+  $config_template         = module_param('config_template')
+  $chroot_dir              = module_param('chroot_dir')
 
-  case $::operatingsystem {
-    debian, ubuntu: {
-      $os_haproxy_package = 'haproxy'
-      $os_haproxy_service = 'haproxy'
+  $user                    = module_param('user')
+  $group                   = module_param('group')
+  $node                    = module_param('node')
 
-      $os_config          = '/etc/haproxy/haproxy.cfg'
-      $os_config_template = 'haproxy/haproxy.cfg.erb'
+  $debug                   = module_param('debug')
+  $quiet                   = module_param('quiet')
+  $max_connections         = module_param('max_connections')
 
-      $os_chroot_dir      = '/usr/share/haproxy'
-    }
-    default: {
-      fail("The haproxy module is not currently supported on ${::operatingsystem}")
-    }
-  }
+  $default_mode            = module_param('default_mode')
+  $default_retries         = module_param('default_retries')
+  $default_max_connections = module_param('default_max_connections')
+  $default_options         = module_hash('default_options')
+
+  $proxies                 = module_hash('proxies')
 }

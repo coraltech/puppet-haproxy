@@ -73,13 +73,14 @@
 # [Remember: No empty lines between comments and class definition]
 class haproxy (
 
-  $package                 = $haproxy::params::os_haproxy_package,
-  $package_ensure          = $haproxy::params::haproxy_package_ensure,
-  $service                 = $haproxy::params::os_haproxy_service,
-  $service_ensure          = $haproxy::params::haproxy_service_ensure,
-  $config                  = $haproxy::params::os_config,
+  $package                 = $haproxy::params::package,
+  $package_ensure          = $haproxy::params::package_ensure,
+  $service                 = $haproxy::params::service,
+  $service_ensure          = $haproxy::params::service_ensure,
+  $config                  = $haproxy::params::config,
+  $config_template         = $haproxy::params::config_template,
   $configure_firewall      = $haproxy::params::configure_firewall,
-  $chroot_dir              = $haproxy::params::os_chroot_dir,
+  $chroot_dir              = $haproxy::params::chroot_dir,
   $user                    = $haproxy::params::user,
   $group                   = $haproxy::params::group,
   $node                    = $haproxy::params::node,
@@ -91,7 +92,6 @@ class haproxy (
   $default_max_connections = $haproxy::params::default_max_connections,
   $default_options         = $haproxy::params::default_options,
   $proxies                 = $haproxy::params::proxies,
-  $config_template         = $haproxy::params::os_config_template,
 
 ) inherits haproxy::params {
 
