@@ -79,6 +79,8 @@ class haproxy (
   $service_ensure          = $haproxy::params::service_ensure,
   $config                  = $haproxy::params::config,
   $config_template         = $haproxy::params::config_template,
+  $default_config          = $haproxy::params::default_config,
+  $default_config_template = $haproxy::params::default_config_template,
   $configure_firewall      = $haproxy::params::configure_firewall,
   $chroot_dir              = $haproxy::params::chroot_dir,
   $user                    = $haproxy::params::user,
@@ -91,6 +93,7 @@ class haproxy (
   $default_retries         = $haproxy::params::default_retries,
   $default_max_connections = $haproxy::params::default_max_connections,
   $default_options         = $haproxy::params::default_options,
+  $default_timeouts        = $haproxy::params::default_timeouts,
   $proxies                 = $haproxy::params::proxies,
 
 ) inherits haproxy::params {
@@ -122,13 +125,28 @@ class haproxy (
     notify  => Service['haproxy'],
   }
 
+  file { 'haproxy-default-config':
+    path    => $default_config,
+    content => template($default_config_template),
+    require => File['haproxy-config'],
+    notify  => Service['haproxy'],
+  }
+
+  file { 'haproxy-chroot-dir':
+    path    => $chroot_dir,
+    ensure  => directory,
+    owner   => $user,
+    group   => $group,
+    require => Package['haproxy'],
+  }
+
   #-----------------------------------------------------------------------------
   # Services
 
   service { 'haproxy':
     name    => $service,
     ensure  => $service_ensure,
-    require => Package['haproxy'],
+    require => File['haproxy-chroot-dir'],
   }
 }
 

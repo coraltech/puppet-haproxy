@@ -18,9 +18,15 @@ class haproxy::default {
   $default_retries         = 3
   $default_max_connections = 1000
   $default_options         = {
-    'tcplog'                => [],
-    'dontlognull'           => [],
-    'redispatch'            => [],
+    'tcplog'                => '',
+    'dontlognull'           => '',
+    'redispatch'            => '',
+  }
+
+  $default_timeouts        = {
+    'connect'               => '5000ms',
+    'client'                => '50000ms',
+    'server'                => '50000ms',
   }
 
   $proxies                 = {}
@@ -29,13 +35,16 @@ class haproxy::default {
 
   case $::operatingsystem {
     debian, ubuntu: {
-      $os_haproxy_package = 'haproxy'
-      $os_haproxy_service = 'haproxy'
+      $package                 = 'haproxy'
+      $service                 = 'haproxy'
 
-      $os_config          = '/etc/haproxy/haproxy.cfg'
-      $os_config_template = 'haproxy/haproxy.cfg.erb'
+      $default_config          = '/etc/default/haproxy'
+      $default_config_template = 'haproxy/default.erb'
 
-      $os_chroot_dir      = '/usr/share/haproxy'
+      $config                  = '/etc/haproxy/haproxy.cfg'
+      $config_template         = 'haproxy/haproxy.cfg.erb'
+
+      $chroot_dir              = '/usr/share/haproxy'
     }
     default: {
       fail("The haproxy module is not currently supported on ${::operatingsystem}")

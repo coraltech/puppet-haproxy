@@ -12,6 +12,8 @@ class haproxy::params inherits haproxy::default {
 
   $config                  = module_param('config')
   $config_template         = module_param('config_template')
+  $default_config          = module_param('default_config')
+  $default_config_template = module_param('default_config_template')
   $chroot_dir              = module_param('chroot_dir')
 
   $user                    = module_param('user')
@@ -25,7 +27,9 @@ class haproxy::params inherits haproxy::default {
   $default_mode            = module_param('default_mode')
   $default_retries         = module_param('default_retries')
   $default_max_connections = module_param('default_max_connections')
+
   $default_options         = module_hash('default_options')
+  $default_timeouts        = module_hash('default_timeouts')
 
   $proxies                 = module_hash('proxies')
 }
